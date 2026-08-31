@@ -1,0 +1,6 @@
+{
+  "name": "Discord Queue Bot",
+  "description": "Bot de colas y turnos para Discord optimizado para Node.js",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

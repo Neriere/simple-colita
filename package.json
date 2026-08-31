@@ -1,0 +1,24 @@
+{
+  "name": "discord-queue-bot",
+  "version": "1.0.0",
+  "description": "Bot de colas y turnos para Discord optimizado para Node.js",
+  "type": "module",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js",
+    "dev": "node bot.js",
+    "build": "node -e \"console.log('Build completed')\""
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.5"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "queue",
+    "turnos"
+  ],
+  "author": "Neriere",
+  "license": "ISC"
+}
