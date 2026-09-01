@@ -1,18 +1,24 @@
-# Dependencias
+# Dependencies
 node_modules/
+.pnpm-store/
 
-# Entorno y variables secretas
+# Build & Bundling
+dist/
+build/
+coverage/
+*.local
+
+# Environment variables & Secrets (CRITICAL FOR DISCORD TOKEN)
 .env
-.env.local
-.env.*.local
-!.env.example
+.env.example*
 
-# Logs
+# Logs & Debug
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Sistema
+# System
 .DS_Store
 Thumbs.db
+
