@@ -1,6 +1,6 @@
 {
-  "name": "Discord Queue Bot & Gestor de Colas",
-  "description": "Herramienta completa para crear, gestionar y generar bots de Discord para listas de espera, colas interactivas con botones y turnos.",
+  "name": "Discord Queue Bot",
+  "description": "Bot de colas y turnos para Discord optimizado para Node.js",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
