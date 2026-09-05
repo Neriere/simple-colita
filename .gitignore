@@ -10,7 +10,9 @@ coverage/
 
 # Environment variables & Secrets (CRITICAL FOR DISCORD TOKEN)
 .env
-.env.example*
+.env.local
+.env.*.local
+!.env.example
 
 # Logs & Debug
 *.log
