@@ -51,8 +51,8 @@ Optimizado para ejecutarse en entornos **Node.js** puros sin sobrecarga de archi
 | `/cola editar` | Modifica titulo, color, roles permitidos, notas o imagenes |
 | `/cola tarjeta` | Abre el visor navegable con paginacion de colas |
 | `/cola listar` | Lista todas las colas configuradas en el servidor |
-| `/cola siguiente` | Avanza el turno al siguiente usuario en la cola |
-| `/cola atras` | Revierte el ultimo avance y restaura la posicion |
+| `/cola siguiente` | Avanza el turno al siguiente usuario en la cola (protegido por cooldown global) |
+| `/cola atras` | Revierte el ultimo avance y restaura la posicion y el cooldown previo |
 | `/cola abrir` | Abre o reanuda las colas |
 | `/cola cerrar` | Cierra las colas para evitar nuevos ingresos |
 | `/cola vaciar` | Vacia la lista de espera de la cola |
@@ -61,6 +61,16 @@ Optimizado para ejecutarse en entornos **Node.js** puros sin sobrecarga de archi
 | `/cola eliminar` | Borra permanentemente una cola y su panel |
 | `/cola reset` | Limpia turnos y prepara las colas para el siguiente ciclo |
 | `/cola insertar` | Inserta a un usuario en una posicion especifica |
+
+---
+
+### Protección contra Saltos Dobles (Cooldown Global)
+
+Para evitar que dos o más personas pulsen "Siguiente" o ejecuten `/cola siguiente` al mismo tiempo y se salten el turno de alguien por accidente:
+- Cada cola cuenta con un **cooldown global de 60 segundos por defecto** tras avanzar un turno.
+- Durante este periodo, si cualquier usuario intenta avanzar de turno de nuevo, recibirá un mensaje efímero con el conteo regresivo indicando cuántos segundos faltan y quién avanzó el último turno.
+- Se puede personalizar el tiempo de enfriamiento por cola con `/cola crear cooldown:<segundos>` o `/cola editar cooldown:<segundos>` (o poner `0` para desactivarlo).
+- Si se necesita deshacer un avance involuntario, el botón **Atrás** (`/cola atras`) revierte la posición de inmediato y restaura el estado previo sin restricciones.
 
 ---
 

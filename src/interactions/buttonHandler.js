@@ -255,7 +255,24 @@ export async function handleButtonInteraction(interaction, client) {
       });
     }
 
-    await advanceQueue(client, queueData, user, chan, interaction.guild);
+    const advanceResult = await advanceQueue(
+      client,
+      queueData,
+      user,
+      chan,
+      interaction.guild,
+    );
+
+    if (advanceResult && !advanceResult.success) {
+      const whoTag = advanceResult.lastAdvancedBy?.id
+        ? `<@${advanceResult.lastAdvancedBy.id}>`
+        : "otro usuario";
+      return interaction.reply({
+        content: `⏳ **Enfriamiento activo:** Debes esperar **${advanceResult.cooldownRemaining} segundo(s)** antes de volver a pasar de turno en **${queueData.title}**.\n*(El turno fue pasado recientemente por ${whoTag} para evitar saltos involuntarios).*`,
+        flags: [MessageFlags.Ephemeral],
+      });
+    }
+
     saveQueues();
     if (interaction.message.id !== queueData.messageId) {
       await updateQueueMessage(client, queueData, chan);

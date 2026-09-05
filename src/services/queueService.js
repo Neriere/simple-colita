@@ -3,6 +3,29 @@ import { saveQueues } from "../storage/queueStore.js";
 import { buildQueueEmbed } from "../ui/queueEmbed.js";
 import { buildQueueButtons } from "../ui/queueComponents.js";
 import { resolveChannel } from "../utils/discordUtils.js";
+import { DEFAULT_ADVANCE_COOLDOWN_SECONDS } from "../config/constants.js";
+
+/**
+ * Calcula los segundos restantes del cooldown global para avanzar turno en una cola.
+ * Retorna 0 si no hay cooldown activo.
+ */
+export function getAdvanceCooldownRemaining(queueData) {
+  const cooldownSec =
+    typeof queueData.advanceCooldown === "number"
+      ? queueData.advanceCooldown
+      : DEFAULT_ADVANCE_COOLDOWN_SECONDS;
+
+  if (cooldownSec <= 0) return 0;
+  if (!queueData.lastAdvancedAt) return 0;
+
+  const elapsedMs = Date.now() - queueData.lastAdvancedAt;
+  const cooldownMs = cooldownSec * 1000;
+
+  if (elapsedMs < cooldownMs) {
+    return Math.max(1, Math.ceil((cooldownMs - elapsedMs) / 1000));
+  }
+  return 0;
+}
 
 /** Actualiza el mensaje principal del panel de la cola en Discord. */
 export async function updateQueueMessage(client, queueData, channel = null) {
@@ -75,8 +98,26 @@ export async function notifyUserTurn(client, member, queueData, channel, advance
   }
 }
 
-/** Avanza el turno de la cola al siguiente usuario. */
-export async function advanceQueue(client, queueData, user, channel, guild = null) {
+/** Avanza el turno de la cola al siguiente usuario respetando el cooldown global. */
+export async function advanceQueue(
+  client,
+  queueData,
+  user,
+  channel,
+  guild = null,
+  ignoreCooldown = false,
+) {
+  if (!ignoreCooldown) {
+    const remaining = getAdvanceCooldownRemaining(queueData);
+    if (remaining > 0) {
+      return {
+        success: false,
+        cooldownRemaining: remaining,
+        lastAdvancedBy: queueData.lastAdvancedBy,
+      };
+    }
+  }
+
   if (!queueData.history) queueData.history = [];
   if (!queueData.pastTurns) queueData.pastTurns = [];
   if (!queueData.currentTurn) queueData.currentTurn = [];
@@ -87,11 +128,16 @@ export async function advanceQueue(client, queueData, user, channel, guild = nul
     waitingListIds: queueData.waitingList.map((u) => u.id),
     pastTurns: JSON.parse(JSON.stringify(queueData.pastTurns)),
     lastAdvancedBy: queueData.lastAdvancedBy,
+    lastAdvancedAt: queueData.lastAdvancedAt,
   });
 
   if (queueData.history.length > 10) {
     queueData.history.shift();
   }
+
+  // Asigna el timestamp de avance para activar el cooldown global inmediatamente
+  queueData.lastAdvancedAt = Date.now();
+  queueData.lastAdvancedBy = { id: user.id, username: user.username };
 
   if (queueData.currentTurn.length > 0) {
     for (const u of queueData.currentTurn) {
@@ -106,7 +152,6 @@ export async function advanceQueue(client, queueData, user, channel, guild = nul
   }
 
   queueData.currentTurn = [];
-  queueData.lastAdvancedBy = { id: user.id, username: user.username };
 
   const slots = queueData.slotsPerTurn || 1;
   while (
@@ -132,6 +177,8 @@ export async function advanceQueue(client, queueData, user, channel, guild = nul
     queueData.currentTurn.push(nextMember);
     notifyUserTurn(client, nextMember, queueData, channel, user);
   }
+
+  return { success: true };
 }
 
 /** Revierte el último avance de turno restaurando el estado previo. */
@@ -168,6 +215,7 @@ export async function undoQueue(queueData, channel) {
   queueData.waitingList = restoredWaiting;
   queueData.pastTurns = previousState.pastTurns || [];
   queueData.lastAdvancedBy = previousState.lastAdvancedBy || null;
+  queueData.lastAdvancedAt = previousState.lastAdvancedAt || null;
 
   if (channel && typeof channel.send === "function") {
     try {

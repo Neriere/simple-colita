@@ -71,6 +71,14 @@ export const slashCommands = [
               "URL directa del banner inferior (ej: https://...png)",
             )
             .setRequired(false),
+        )
+        .addIntegerOption((opt) =>
+          opt
+            .setName("cooldown")
+            .setDescription(
+              "Segundos de enfriamiento global entre turnos (por defecto 60s, 0 para desactivar)",
+            )
+            .setRequired(false),
         ),
     )
     .addSubcommand((sub) =>
@@ -159,6 +167,14 @@ export const slashCommands = [
           opt
             .setName("por_turno")
             .setDescription("Nuevos cupos simultáneos por turno")
+            .setRequired(false),
+        )
+        .addIntegerOption((opt) =>
+          opt
+            .setName("cooldown")
+            .setDescription(
+              "Nuevos segundos de enfriamiento global entre turnos (ej: 60, o 0 para desactivar)",
+            )
             .setRequired(false),
         ),
     )

@@ -61,3 +61,10 @@ export function getChileCurrentHour() {
     return new Date().getHours();
   }
 }
+
+/**
+ * Cooldown global por defecto (en segundos) para evitar que varias personas
+ * salten de turno consecutivamente y se salten el turno a alguien.
+ */
+export const DEFAULT_ADVANCE_COOLDOWN_SECONDS = 60;
+

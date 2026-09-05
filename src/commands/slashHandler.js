@@ -37,6 +37,7 @@ export async function handleSlashCommand(interaction, client) {
     const description = options.getString("descripcion") || "";
     const maxCapacity = options.getInteger("limite") || 0;
     const slotsPerTurn = options.getInteger("por_turno") || 1;
+    const advanceCooldown = options.getInteger("cooldown") ?? 60;
     const iconUrl = options.getString("icono") || null;
     const bannerUrl = options.getString("banner") || null;
     const queueId = `q_${Date.now()}`;
@@ -52,6 +53,7 @@ export async function handleSlashCommand(interaction, client) {
       host: { id: user.id, username: user.username },
       maxCapacity,
       slotsPerTurn,
+      advanceCooldown,
       isClosed: false,
       createdAt: new Date().toISOString(),
       currentTurn: [],
@@ -59,6 +61,7 @@ export async function handleSlashCommand(interaction, client) {
       pastTurns: [],
       history: [],
       lastAdvancedBy: null,
+      lastAdvancedAt: null,
       channelId: channelId,
       messageId: null,
     };
@@ -141,6 +144,7 @@ export async function handleSlashCommand(interaction, client) {
     const newBanner = options.getString("banner");
     const newLimit = options.getInteger("limite");
     const newSlots = options.getInteger("por_turno");
+    const newCooldown = options.getInteger("cooldown");
 
     if (newTitle !== null) queueData.title = newTitle;
     if (newLevel !== null)
@@ -152,6 +156,7 @@ export async function handleSlashCommand(interaction, client) {
       queueData.bannerUrl = newBanner.toLowerCase() === "quitar" ? null : newBanner;
     if (newLimit !== null) queueData.maxCapacity = newLimit;
     if (newSlots !== null) queueData.slotsPerTurn = newSlots;
+    if (newCooldown !== null) queueData.advanceCooldown = newCooldown;
 
     saveQueues();
     const chan = await resolveChannel(
@@ -167,8 +172,14 @@ export async function handleSlashCommand(interaction, client) {
           ? ` (Nivel asignado: Lv. ${newLevel})`
           : " (Nivel removido)"
         : "";
+    const cooldownNotice =
+      newCooldown !== null
+        ? newCooldown > 0
+          ? ` (Cooldown: ${newCooldown}s)`
+          : " (Cooldown desactivado)"
+        : "";
     return interaction.reply({
-      content: ` Se actualizó la cola **${queueData.title}** exitosamente${levelNotice}.`,
+      content: ` Se actualizó la cola **${queueData.title}** exitosamente${levelNotice}${cooldownNotice}.`,
       flags: [MessageFlags.Ephemeral],
     });
   }
@@ -251,7 +262,24 @@ export async function handleSlashCommand(interaction, client) {
     }
 
     const chan = await resolveChannel(client, channelId, interaction.channel);
-    await advanceQueue(client, queueData, user, chan, interaction.guild);
+    const advanceResult = await advanceQueue(
+      client,
+      queueData,
+      user,
+      chan,
+      interaction.guild,
+    );
+
+    if (advanceResult && !advanceResult.success) {
+      const whoTag = advanceResult.lastAdvancedBy?.id
+        ? `<@${advanceResult.lastAdvancedBy.id}>`
+        : "otro usuario";
+      return interaction.reply({
+        content: `⏳ **Enfriamiento activo:** Debes esperar **${advanceResult.cooldownRemaining} segundo(s)** antes de volver a pasar de turno en **${queueData.title}**.\n*(El turno fue pasado recientemente por ${whoTag} para evitar saltos involuntarios).*`,
+        flags: [MessageFlags.Ephemeral],
+      });
+    }
+
     saveQueues();
     await updateQueueMessage(client, queueData, chan);
     return interaction.reply({

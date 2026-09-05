@@ -134,12 +134,18 @@ export function buildQueueEmbed(queueData, pageInfo = null) {
     });
   }
 
+  const cooldownSec =
+    typeof queueData.advanceCooldown === "number"
+      ? queueData.advanceCooldown
+      : 60;
+  const cooldownPart = cooldownSec > 0 ? ` • Cooldown: ${cooldownSec}s` : "";
+
   const advancePart = lastAdvancedBy
     ? `Último avance por: @${lastAdvancedBy.username}`
     : `Estado: ${statusBadge}`;
   const totalPart = `Total anotados: ${capacityStr}`;
-  const hostPart = host ? `Organizador: ${host.username || host}` : "";
-  let footerText = `${advancePart} • ${totalPart} • ${hostPart}`;
+  const hostPart = host ? ` • Organizador: ${host.username || host}` : "";
+  let footerText = `${advancePart}${cooldownPart} • ${totalPart}${hostPart}`;
 
   if (pageInfo) {
     footerText += ` • [${pageInfo.current}/${pageInfo.total}]`;
