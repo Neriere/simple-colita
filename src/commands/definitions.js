@@ -192,7 +192,8 @@ export const slashCommands = [
         .addBooleanOption((opt) =>
           opt
             .setName('propias')
-            .setDescription('Colas donde estas en turno o esperando'),
+            .setDescription('Colas donde estas en turno o esperando')
+            .setRequired(false),
       ),
     )
     .addSubcommand((sub) =>
