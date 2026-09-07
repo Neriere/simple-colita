@@ -188,7 +188,12 @@ export const slashCommands = [
     .addSubcommand((sub) =>
       sub
         .setName("listar")
-        .setDescription("Abre tu visor personal privado de colas"),
+        .setDescription("Abre tu visor personal privado de colas")
+        .addBooleanOption((opt) =>
+          opt
+            .setName('propias')
+            .setDescription('Colas donde estas en turno o esperando'),
+      ),
     )
     .addSubcommand((sub) =>
       sub
