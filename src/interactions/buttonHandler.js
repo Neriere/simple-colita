@@ -3,6 +3,7 @@ import {
   queues,
   saveQueues,
   getQueuesInChannel,
+  getFilteredQueuesInChannel,
 } from "../storage/queueStore.js";
 import { buildQueueEmbed } from "../ui/queueEmbed.js";
 import {
@@ -49,13 +50,30 @@ export async function handleButtonInteraction(interaction, client) {
 
   // Navegación entre tarjetas (<, >, |<, >|)
   if (customId.startsWith("card_nav:")) {
-    const [, direction, currentIndexStr] = customId.split(":");
-    const currentIndex = parseInt(currentIndexStr, 10) || 0;
-    const active = getQueuesInChannel(channelId);
+    const parts = customId.split(":");
+    const direction = parts[1];
+    const currentIndex = parseInt(parts[2], 10) || 0;
+    const rawFilterKey = parts[3] ? decodeURIComponent(parts[3]) : "all";
+
+    // Extraer filtros si existen
+    const filters = {};
+    let filterLabel = "";
+    if (rawFilterKey && rawFilterKey !== "all") {
+      const tokens = rawFilterKey.split("|");
+      for (const token of tokens) {
+        if (token.startsWith("z=")) filters.zone = token.substring(2);
+        if (token.startsWith("lvl=")) filters.potionLevel = parseInt(token.substring(4), 10);
+      }
+      if (filters.zone && filters.potionLevel) filterLabel = `${filters.zone} • Lv.${filters.potionLevel}`;
+      else if (filters.zone) filterLabel = filters.zone;
+      else if (filters.potionLevel) filterLabel = `Lv.${filters.potionLevel}`;
+    }
+
+    const active = getFilteredQueuesInChannel(channelId, filters);
 
     if (active.length === 0) {
       return interaction.update({
-        content: "No hay colas activas en este canal.",
+        content: "No hay colas activas en este canal para el filtro seleccionado.",
         embeds: [],
         components: [],
       });
@@ -72,8 +90,9 @@ export async function handleButtonInteraction(interaction, client) {
     const embed = buildQueueEmbed(currentQueue, {
       current: newIndex + 1,
       total: active.length,
+      filterLabel,
     });
-    const components = buildCardViewerComponents(active, newIndex);
+    const components = buildCardViewerComponents(active, newIndex, rawFilterKey);
 
     return interaction.update({ embeds: [embed], components });
   }

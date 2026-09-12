@@ -58,6 +58,40 @@ export function getQueuesInChannel(channelId) {
   );
 }
 
+/**
+ * Retorna las colas de un canal filtradas opcionalmente por Zona y/o Nivel de Poción.
+ * @param {string} channelId
+ * @param {object} filters { zone?: string, potionLevel?: number }
+ */
+export function getFilteredQueuesInChannel(channelId, filters = {}) {
+  const list = [];
+  const targetZone = filters.zone?.trim().toLowerCase();
+  const targetLevel = filters.potionLevel ? Number(filters.potionLevel) : null;
+
+  for (const q of queues.values()) {
+    if (q.channelId !== channelId) continue;
+
+    if (targetZone && targetZone !== "all") {
+      const qZone = (q.zone || "").trim().toLowerCase();
+      if (!qZone.includes(targetZone) && !targetZone.includes(qZone)) {
+        continue;
+      }
+    }
+
+    if (targetLevel && targetLevel > 0) {
+      if (Number(q.potionLevel) !== targetLevel) {
+        continue;
+      }
+    }
+
+    list.push(q);
+  }
+
+  return list.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
+}
+
 /** Valida si un miembro tiene permisos para administrar la cola */
 export function canManageQueue(queueData, interaction) {
   if (!queueData) return false;

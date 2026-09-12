@@ -1,6 +1,7 @@
 # Dependencies
 node_modules/
 .pnpm-store/
+bun.lock
 
 # Build & Bundling
 dist/
@@ -20,7 +21,17 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 package-lock.json
-queues.json
+
+# Temporary / Extraction dumps
+*_dump.json
+temp_*
+*.tmp
+
+# Web / AI Studio specific files not needed for Discord bot
+public/
+static/
+.parcel-cache/
+.cache/
 
 # System
 .DS_Store

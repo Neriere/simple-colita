@@ -17,6 +17,7 @@ export async function handleEditar(interaction, client) {
 
   const newTitle = options.getString("titulo");
   const newLevel = options.getInteger("nivel");
+  const newZone = options.getString("zona");
   const newDesc = options.getString("descripcion");
   const newIcon = options.getString("icono");
   const newBanner = options.getString("banner");
@@ -27,6 +28,8 @@ export async function handleEditar(interaction, client) {
   if (newTitle !== null) queueData.title = newTitle;
   if (newLevel !== null)
     queueData.potionLevel = newLevel === 0 ? null : newLevel;
+  if (newZone !== null)
+    queueData.zone = newZone.toLowerCase() === "quitar" ? null : newZone;
   if (newDesc !== null) queueData.description = newDesc;
   if (newIcon !== null)
     queueData.iconUrl = newIcon.toLowerCase() === "quitar" ? null : newIcon;

@@ -8,6 +8,7 @@ export async function handleCrear(interaction) {
 
   const title = options.getString("titulo");
   const potionLevel = options.getInteger("nivel") || null;
+  const zone = options.getString("zona") || null;
   const description = options.getString("descripcion") || "";
   const maxCapacity = options.getInteger("limite") || 0;
   const slotsPerTurn = options.getInteger("por_turno") || 1;
@@ -20,6 +21,7 @@ export async function handleCrear(interaction) {
     id: queueId,
     title,
     potionLevel,
+    zone,
     description,
     iconUrl,
     bannerUrl,

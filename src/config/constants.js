@@ -9,6 +9,41 @@ export const DATA_FILE = path.join(ROOT_DIR, "queues.json");
 export const LEGACY_DATA_FILE = path.join(ROOT_DIR, "queues_data.json");
 
 /**
+ * Niveles canónicos de pociones de recaudador en Dofus.
+ */
+export const CANONICAL_POTION_LEVELS = [20, 40, 60, 80, 100, 120, 140, 160, 180, 200];
+
+/**
+ * Lista canónica de Grandes Zonas de Dofus para filtrado y categorización.
+ */
+export const DOFUS_ZONES = [
+  "Amakna",
+  "Bonta",
+  "Brakmar",
+  "Frigost I",
+  "Frigost II",
+  "Frigost III",
+  "Llanuras de Cania",
+  "Pandala",
+  "Archipiélago Wabbit",
+  "Isla de Otomai",
+  "Dimensiones Divinas",
+  "Sufokia y Abismos",
+  "Landas de Sidimote",
+  "Montaña de los Koalaks",
+  "Saharach",
+  "Valonia y Osavora",
+  "Bosque de los Abráknidos",
+  "Selocalipsis y Onírico",
+  "Archipiélago de Vulkania",
+  "Península de los Dragohuevos",
+  "Isla de Moon",
+  "Isla del Minotauroro",
+  "Eventos",
+  "Otras Zonas",
+];
+
+/**
  * Retorna badge y color asociado al nivel de poción / mazmorra.
  * @param {number|string|null} potionLevel
  */

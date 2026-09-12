@@ -145,10 +145,12 @@ export function buildQueueEmbed(queueData, pageInfo = null) {
     : `Estado: ${statusBadge}`;
   const totalPart = `Total anotados: ${capacityStr}`;
   const hostPart = host ? ` • Organizador: ${host.username || host}` : "";
-  let footerText = `${advancePart}${cooldownPart} • ${totalPart}${hostPart}`;
+  const zonePart = queueData.zone ? ` • Zona: ${queueData.zone}` : "";
+  let footerText = `${advancePart}${cooldownPart} • ${totalPart}${zonePart}${hostPart}`;
 
   if (pageInfo) {
-    footerText += ` • [${pageInfo.current}/${pageInfo.total}]`;
+    const filterTag = pageInfo.filterLabel ? ` [${pageInfo.filterLabel}]` : "";
+    footerText += ` • [${pageInfo.current}/${pageInfo.total}]${filterTag}`;
   }
 
   embed.setFooter({ text: footerText });

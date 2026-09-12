@@ -72,6 +72,13 @@ export const slashCommands = [
             )
             .setRequired(false),
         )
+        .addStringOption((opt) =>
+          opt
+            .setName("zona")
+            .setDescription("Región o Gran Zona de Dofus (ej: Frigost I, Bonta, Amakna, etc.)")
+            .setAutocomplete(true)
+            .setRequired(false),
+        )
         .addIntegerOption((opt) =>
           opt
             .setName("cooldown")
@@ -85,14 +92,21 @@ export const slashCommands = [
       sub
         .setName("mostrar")
         .setDescription(
-          "Publica/reinvoca el mensaje interactivo público de una cola en el chat",
+          "Publica en el canal los paneles interactivos individuales de una cola o de toda una zona",
         )
         .addStringOption((opt) =>
           opt
             .setName("cola")
-            .setDescription("Cola a mostrar en el canal")
+            .setDescription("Cola individual a publicar en el canal (opcional si usas zona)")
             .setAutocomplete(true)
-            .setRequired(true),
+            .setRequired(false),
+        )
+        .addStringOption((opt) =>
+          opt
+            .setName("zona")
+            .setDescription("Publica todas las colas de esta zona en este canal (ej: Frigost I, Bonta)")
+            .setAutocomplete(true)
+            .setRequired(false),
         ),
     )
     .addSubcommand((sub) =>
@@ -169,6 +183,13 @@ export const slashCommands = [
             .setDescription("Nuevos cupos simultáneos por turno")
             .setRequired(false),
         )
+        .addStringOption((opt) =>
+          opt
+            .setName("zona")
+            .setDescription('Nueva Gran Zona (o escribe "quitar" para removerla)')
+            .setAutocomplete(true)
+            .setRequired(false),
+        )
         .addIntegerOption((opt) =>
           opt
             .setName("cooldown")
@@ -182,7 +203,32 @@ export const slashCommands = [
       sub
         .setName("tarjeta")
         .setDescription(
-          "Publica en el chat la tarjeta interactiva navegable ( ) visible para todos",
+          "Publica en el chat la tarjeta interactiva navegable filtrable por zona o nivel",
+        )
+        .addStringOption((opt) =>
+          opt
+            .setName("zona")
+            .setDescription("Filtrar tarjetas solo por esta zona (ej: Frigost I, Bonta, Amakna)")
+            .setAutocomplete(true)
+            .setRequired(false),
+        )
+        .addIntegerOption((opt) =>
+          opt
+            .setName("nivel")
+            .setDescription("Filtrar tarjetas solo por este nivel de poción")
+            .setRequired(false)
+            .addChoices(
+              { name: "[Nivel 20]", value: 20 },
+              { name: "[Nivel 40]", value: 40 },
+              { name: "[Nivel 60]", value: 60 },
+              { name: "[Nivel 80]", value: 80 },
+              { name: "[Nivel 100]", value: 100 },
+              { name: "[Nivel 120]", value: 120 },
+              { name: "[Nivel 140]", value: 140 },
+              { name: "[Nivel 160]", value: 160 },
+              { name: "[Nivel 180]", value: 180 },
+              { name: "[Nivel 200]", value: 200 },
+            ),
         ),
     )
     .addSubcommand((sub) =>

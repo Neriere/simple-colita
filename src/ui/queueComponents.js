@@ -35,7 +35,7 @@ export function buildQueueButtons(queueId, isClosed = false) {
 }
 
 /** Genera los componentes del visor interactivo de tarjetas con paginación y salto directo. */
-export function buildCardViewerComponents(activeQueues, currentIndex) {
+export function buildCardViewerComponents(activeQueues, currentIndex, filterKey = "all") {
   const total = activeQueues.length;
   if (total === 0) return [];
 
@@ -43,30 +43,31 @@ export function buildCardViewerComponents(activeQueues, currentIndex) {
   const currentQueue = activeQueues[safeIndex];
   const queueId = currentQueue.id;
   const isClosed = !!currentQueue.isClosed;
+  const fk = encodeURIComponent(filterKey || "all");
 
   const navRow = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
-      .setCustomId(`card_nav:first:${safeIndex}`)
+      .setCustomId(`card_nav:first:${safeIndex}:${fk}`)
       .setLabel("|<")
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(safeIndex === 0),
     new ButtonBuilder()
-      .setCustomId(`card_nav:prev:${safeIndex}`)
+      .setCustomId(`card_nav:prev:${safeIndex}:${fk}`)
       .setLabel("< Anterior")
       .setStyle(ButtonStyle.Primary)
       .setDisabled(safeIndex === 0),
     new ButtonBuilder()
-      .setCustomId(`card_nav:count:${safeIndex}`)
+      .setCustomId(`card_nav:count:${safeIndex}:${fk}`)
       .setLabel(`${safeIndex + 1} / ${total}`)
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(true),
     new ButtonBuilder()
-      .setCustomId(`card_nav:next:${safeIndex}`)
+      .setCustomId(`card_nav:next:${safeIndex}:${fk}`)
       .setLabel("Siguiente >")
       .setStyle(ButtonStyle.Primary)
       .setDisabled(safeIndex >= total - 1),
     new ButtonBuilder()
-      .setCustomId(`card_nav:last:${safeIndex}`)
+      .setCustomId(`card_nav:last:${safeIndex}:${fk}`)
       .setLabel(">|")
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(safeIndex >= total - 1),
@@ -171,7 +172,7 @@ export function buildCardViewerComponents(activeQueues, currentIndex) {
 
   const selectRow = new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()
-      .setCustomId("card_select_jump")
+      .setCustomId(`card_select_jump:${fk}`)
       .setPlaceholder(" Saltar directamente a una cola...")
       .addOptions(selectOptions),
   );

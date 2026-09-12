@@ -3,6 +3,7 @@ import {
   queues,
   saveQueues,
   getQueuesInChannel,
+  getFilteredQueuesInChannel,
 } from "../storage/queueStore.js";
 import { buildQueueEmbed } from "../ui/queueEmbed.js";
 import { buildCardViewerComponents } from "../ui/queueComponents.js";
@@ -15,13 +16,30 @@ export async function handleSelectMenuInteraction(interaction, client) {
   const channelId = interaction.channelId || interaction.channel?.id;
 
   // Salto rápido a una cola desde el visor de tarjetas
-  if (customId === "card_select_jump") {
+  if (customId.startsWith("card_select_jump")) {
+    const parts = customId.split(":");
+    const rawFilterKey = parts[1] ? decodeURIComponent(parts[1]) : "all";
+
+    // Extraer filtros si existen
+    const filters = {};
+    let filterLabel = "";
+    if (rawFilterKey && rawFilterKey !== "all") {
+      const tokens = rawFilterKey.split("|");
+      for (const token of tokens) {
+        if (token.startsWith("z=")) filters.zone = token.substring(2);
+        if (token.startsWith("lvl=")) filters.potionLevel = parseInt(token.substring(4), 10);
+      }
+      if (filters.zone && filters.potionLevel) filterLabel = `${filters.zone} • Lv.${filters.potionLevel}`;
+      else if (filters.zone) filterLabel = filters.zone;
+      else if (filters.potionLevel) filterLabel = `Lv.${filters.potionLevel}`;
+    }
+
     const selectedVal = interaction.values[0];
-    const active = getQueuesInChannel(channelId);
+    const active = getFilteredQueuesInChannel(channelId, filters);
 
     if (active.length === 0) {
       return interaction.update({
-        content: "No hay colas activas en este canal.",
+        content: "No hay colas activas en este canal para el filtro seleccionado.",
         embeds: [],
         components: [],
       });
@@ -38,8 +56,9 @@ export async function handleSelectMenuInteraction(interaction, client) {
       const embed = buildQueueEmbed(currentQueue, {
         current: safeIndex + 1,
         total: active.length,
+        filterLabel,
       });
-      const components = buildCardViewerComponents(active, safeIndex);
+      const components = buildCardViewerComponents(active, safeIndex, rawFilterKey);
       return interaction.update({ embeds: [embed], components });
     }
 
@@ -50,8 +69,9 @@ export async function handleSelectMenuInteraction(interaction, client) {
     const embed = buildQueueEmbed(currentQueue, {
       current: safeIndex + 1,
       total: active.length,
+      filterLabel,
     });
-    const components = buildCardViewerComponents(active, safeIndex);
+    const components = buildCardViewerComponents(active, safeIndex, rawFilterKey);
     return interaction.update({ embeds: [embed], components });
   }
 
